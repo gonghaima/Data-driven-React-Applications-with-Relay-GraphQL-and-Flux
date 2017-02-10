@@ -1,10 +1,17 @@
 import express from 'express';
 import {MongoClient} from 'mongodb';
 import {MONGO_URL} from './secret';
+import schema from './data/schema';
+import GraphQLHTTP from 'express-graphql';
 
 let app=express();
 
 app.use(express.static('public'));
+
+app.use('/graphql', GraphQLHTTP({
+    schema,
+    graphiql:true
+}));
 
 let db;
 MongoClient.connect(MONGO_URL,(err, database)=>{
