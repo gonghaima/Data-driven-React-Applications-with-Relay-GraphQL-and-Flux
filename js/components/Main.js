@@ -1,12 +1,5 @@
 import React, {Component} from 'react';
-import API from '../API';
-import LinkStore from '../stores/LinkStore';
-
-let _getAppState = () => {
-    return {
-        links: LinkStore.getAll()
-    };
-}
+import Relay from 'react-relay';
 
 class Main extends Component {
     static propTypes = {
@@ -16,29 +9,15 @@ class Main extends Component {
     static defaultProps = {
         limit: 4
     }
-    state = _getAppState();
-    
-    componentDidMount() {
-        API.fetchLinks();
-        LinkStore.on("change", this.onChange);
-    }
-
-    componentWillUnmount() {
-        LinkStore.removeListener("change", this.onChange);
-    }
-
-    onChange = ()=> {
-        console.log('4. In the View');
-
-        this.setState(_getAppState());
-    }
 
     render() {
         let content = this
-            .state
+            .props
+            .store
             .links
             .slice(0, this.props.limit)
             .map(link => {
+                //TODO: Make the LI a <Link />
                 return <li key={link._id}>
                     <a href={link.url}>{link.title}</a>
                 </li>;
@@ -53,5 +32,20 @@ class Main extends Component {
         );
     }
 }
+
+//Declare the data requirement for this component
+Main = Relay.createContainer(Main, {
+    fragments:{
+        store:()=>Relay.QL`
+            fragment on Store{
+                links{
+                    _id,
+                    title,
+                    url,
+                }
+            }
+        `
+    }
+});
 
 export default Main;

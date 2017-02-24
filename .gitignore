@@ -3,3 +3,5 @@
 node_modules
 *.map
 secret.js
+data/schema.json
+public/bundle.js
